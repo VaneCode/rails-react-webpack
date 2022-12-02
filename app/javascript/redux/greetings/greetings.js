@@ -1,38 +1,22 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
-// First, create the thunk
-export const getGreeting = createAsyncThunk(
-  'greetings/getGreeting',
-  async () => {
-    const response = await fetch('http://localhost:3000/greetings');
-    return response.json()
-  },
-);
-
+const API_URL = 'http://localhost:3000/greetings';
+const FETCH = 'rails-react-webpack/greetings/FETCH';
 const initialState = {
-    message: [],
-    status: 'idle',
+    greeting: '',
 };
 
-// Then, handle actions in your reducers:
-const reducerGreetings = createSlice({
-  name: 'greetings',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
-    builder.addCase(getGreeting.fulfilled, (state, action) => {
-        state.message = action.payload;
-        state.status = 'succeeded';
-    });
-    builder.addCase(getGreeting.pending, (state, action) => {
-        state.message = action.payload;
-        state.status = 'loading';
-    });
-  },
+export default ( state = initialState, action) => {
+    switch (action.type) {
+        case `${FETCH}/fulfilled`:
+            return { ...state, greeting: action.payload}
+         default :
+            return state;
+    }       
+};
+
+export const fetchGreeting = createAsyncThunk(FETCH, async () => {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    return data.messages;
 });
-
-// Action creators are generated for each case reducer function
-export const { greetingsReducer } = reducerGreetings.actions;
-
-export default reducerGreetings.reducer;
